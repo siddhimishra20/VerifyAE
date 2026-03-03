@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VerifyAE — Crisis Misinformation Detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Kufi+Arabic:wght@300;400;600;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060B14;
+    --surface: #0C1624;
+    --surface2: #111E30;
+    --border: #1C2E44;
+    --accent: #00C3A5;
+    --accent2: #0076FF;
+    --warn: #F5A623;
+    --danger: #FF4646;
+    --safe: #00C3A5;
+    --text: #E8F0F8;
+    --muted: #6B8399;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Sora', sans-serif;
+    --arabic: 'Noto Kufi Arabic', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,195,165,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,195,165,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 {
+    width: 500px; height: 500px;
+    background: rgba(0,118,255,0.07);
+    top: -200px; right: -100px;
+  }
+  .orb2 {
+    width: 400px; height: 400px;
+    background: rgba(0,195,165,0.06);
+    bottom: -100px; left: -100px;
+  }
+
+  /* HEADER */
+  header {
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    background: rgba(6,11,20,0.9);
+    backdrop-filter: blur(20px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,195,165,0.2), transparent);
+  }
+  .logo-mark svg { position: relative; z-index: 1; }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+  .logo-en {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+  .logo-ar {
+    font-family: var(--arabic);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .lang-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+  }
+  .lang-btn {
+    padding: 4px 14px;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .lang-btn.active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  /* MAIN */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 20px 80px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 52px;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,195,165,0.08);
+    border: 1px solid rgba(0,195,165,0.25);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 28px;
+  }
+  .pulse-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .subtitle-ar {
+    font-family: var(--arabic);
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 8px;
+    display: none;
+  }
+
+  /* INPUT CARD */
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+  }
+  .input-card:focus-within {
+    border-color: rgba(0,195,165,0.4);
+    box-shadow: 0 0 0 4px rgba(0,195,165,0.05);
+  }
+
+  .input-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(0,195,165,0.04);
+  }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  .tab-content { display: none; padding: 20px; }
+  .tab-content.active { display: block; }
+
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.7;
+    resize: none;
+    min-height: 130px;
+  }
+  textarea::placeholder { color: var(--muted); }
+
+  .url-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .url-icon { color: var(--muted); flex-shrink: 0; }
+  input[type="url"] {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  input[type="url"]::placeholder { color: var(--muted); }
+
+  .input-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .char-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .analyze-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .analyze-btn:hover {
+    background: #00dbb9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0,195,165,0.3);
+  }
+  .analyze-btn:active { transform: translateY(0); }
+  .analyze-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* LOADING */
+  .loading-state {
+    display: none;
+    text-align: center;
+    padding: 48px 20px;
+  }
+  .loading-state.active { display: block; }
+
+  .scanner-ring {
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* RESULT CARD */
+  .result-card {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: slideUp 0.4s ease;
+  }
+  .result-card.active { display: block; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .verdict-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .verdict-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .verdict-SAFE .verdict-icon { background: rgba(0,195,165,0.15); color: var(--safe); }
+  .verdict-WARN .verdict-icon { background: rgba(245,166,35,0.15); color: var(--warn); }
+  .verdict-DANGER .verdict-icon { background: rgba(255,70,70,0.15); color: var(--danger); }
+
+  .verdict-SAFE .verdict-label { color: var(--safe); }
+  .verdict-WARN .verdict-label { color: var(--warn); }
+  .verdict-DANGER .verdict-label { color: var(--danger); }
+
+  .confidence-pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px 12px;
+  }
+
+  .result-body { padding: 24px; }
+
+  .result-section {
+    margin-bottom: 24px;
+  }
+  .result-section:last-child { margin-bottom: 0; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-family: var(--mono);
+  }
+
+  .summary-text {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+  .flags-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .flag-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .flag-item.warn { border-left-color: var(--warn); }
+  .flag-item.danger { border-left-color: var(--danger); }
+  .flag-item.info { border-left-color: var(--accent2); }
+
+  .flag-emoji { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+  .score-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .score-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .score-bar-label {
+    font-size: 12px;
+    color: var(--muted);
+    width: 150px;
+    flex-shrink: 0;
+  }
+  .score-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1s ease;
+  }
+  .score-val {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* recommendation block */
+  .recommendation {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .recommendation .rec-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* TIPS ROW */
+  .tips-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 40px;
+  }
+  .tip-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .tip-card:hover {
+    border-color: rgba(0,195,165,0.35);
+    background: var(--surface2);
+  }
+  .tip-icon-wrap {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .tip-icon-wrap.green { background: rgba(0,195,165,0.1); border: 1px solid rgba(0,195,165,0.2); }
+  .tip-icon-wrap.orange { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.2); }
+  .tip-icon-wrap.blue { background: rgba(0,118,255,0.1); border: 1px solid rgba(0,118,255,0.2); }
+  .tip-icon-wrap svg { display: block; }
+  .tip-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    font-family: var(--mono);
+    text-transform: uppercase;
+  }
+  .tip-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  footer span { color: var(--accent); }
+
+  /* ARABIC mode */
+  body.ar { direction: rtl; }
+  body.ar .logo-ar { display: block; }
+  body.ar header { flex-direction: row-reverse; }
+  body.ar .flag-item { border-left: none; border-right: 3px solid transparent; }
+  body.ar .flag-item.warn { border-right-color: var(--warn); }
+  body.ar .flag-item.danger { border-right-color: var(--danger); }
+  body.ar .flag-item.info { border-right-color: var(--accent2); }
+  body.ar .score-bar-row { flex-direction: row-reverse; }
+  body.ar .score-val { text-align: left; }
+
+  /* Error state */
+  .error-msg {
+    display: none;
+    padding: 14px 20px;
+    background: rgba(255,70,70,0.08);
+    border: 1px solid rgba(255,70,70,0.25);
+    border-radius: 10px;
+    color: var(--danger);
+    font-size: 13px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .error-msg.active { display: block; }
+
+  /* Report button */
+  .report-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .report-btn:hover:not(:disabled) {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: rgba(255,70,70,0.06);
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 16px; }
+    main { padding: 40px 16px 60px; }
+    .tips-row { grid-template-columns: 1fr; }
+    .score-bar-label { width: 110px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="18" height="18" fill="none" viewBox="0 0 18 18">
+        <path d="M9 2L16 6V12L9 16L2 12V6L9 2Z" stroke="#00C3A5" stroke-width="1.5" fill="none"/>
+        <path d="M9 6V9M9 12V12.01" stroke="#00C3A5" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <span class="logo-en">VerifyAE</span>
+      <span class="logo-ar">تحقق AE</span>
+    </div>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="ar">AR</button>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="status-pill">
+      <div class="pulse-dot"></div>
+      <span class="t" data-en="SYSTEM ACTIVE" data-ar="النظام نشط">SYSTEM ACTIVE</span>
+    </div>
+    <h1 class="t" data-en="<span>Detect</span> Misinformation.<br>Stay Informed." data-ar="<span>اكتشف</span> المعلومات المضللة.<br>ابق على علم.">
+      <span>Detect</span> Misinformation.<br>Stay Informed.
+    </h1>
+    <p class="subtitle t" data-en="AI-powered analysis to help you verify claims, news, and social media content during crisis situations in the UAE." data-ar="تحليل مدعوم بالذكاء الاصطناعي لمساعدتك في التحقق من الادعاءات والأخبار وتعليقات وسائل التواصل الاجتماعي خلال أوقات الأزمات في الإمارات.">
+      AI-powered analysis to help you verify claims, news, and social media content during crisis situations in the UAE.
+    </p>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="input-card">
+    <div class="input-tabs">
+      <button class="tab-btn active" data-tab="text">
+        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><rect x="1" y="2" width="12" height="2" rx="1" fill="currentColor"/><rect x="1" y="6" width="9" height="2" rx="1" fill="currentColor"/><rect x="1" y="10" width="11" height="2" rx="1" fill="currentColor"/></svg>
+        <span class="t" data-en="Paste Text" data-ar="نص">Paste Text</span>
+      </button>
+      <button class="tab-btn" data-tab="url">
+        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M6 8L8 6M5 9.5C4 10.5 2 10.5 1 9.5 0 8.5 0 6.5 1 5.5L3.5 3C4.5 2 6.5 2 7.5 3L8.5 4M9 4.5C10 3.5 12 3.5 13 4.5 14 5.5 14 7.5 13 8.5L10.5 11C9.5 12 7.5 12 6.5 11L5.5 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span class="t" data-en="Paste URL" data-ar="رابط">Paste URL</span>
+      </button>
+    </div>
+
+    <div class="tab-content active" id="tab-text">
+      <textarea id="textInput" placeholder="Paste a social media post, news excerpt, or any claim you want to verify..." rows="5"></textarea>
+    </div>
+
+    <div class="tab-content" id="tab-url">
+      <div class="url-input-wrap">
+        <svg class="url-icon" width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M7 9L9 7M6 10.5C5 11.5 3 11.5 2 10.5 1 9.5 1 7.5 2 6.5L4.5 4C5.5 3 7.5 3 8.5 4L9.5 5M10 5.5C11 4.5 13 4.5 14 5.5 15 6.5 15 8.5 14 9.5L11.5 12C10.5 13 8.5 13 7.5 12L6.5 11" stroke="#6B8399" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <input type="url" id="urlInput" placeholder="https://example.com/news-article">
+      </div>
+    </div>
+
+    <div class="input-footer">
+      <span class="char-count" id="charCount">0 / 3000</span>
+      <button class="analyze-btn" id="analyzeBtn">
+        <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M7 4V7L9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span class="t" data-en="Analyze Now" data-ar="تحليل الآن">Analyze Now</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" id="loadingState">
+    <div class="scanner-ring"></div>
+    <p class="loading-text t" data-en="Scanning for misinformation patterns..." data-ar="جارٍ فحص أنماط المعلومات المضللة...">Scanning for misinformation patterns...</p>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="verdict-badge" id="verdictBadge">
+        <div class="verdict-icon" id="verdictIcon"></div>
+        <span class="verdict-label" id="verdictLabel"></span>
+      </div>
+      <span class="confidence-pill" id="confidencePill"></span>
+    </div>
+    <div class="result-body">
+      <div class="result-section">
+        <div class="section-label t" data-en="SUMMARY" data-ar="الملخص">SUMMARY</div>
+        <p class="summary-text" id="summaryText"></p>
+        <div id="domainBadgeWrap"></div>
+      </div>
+      <div class="result-section">
+        <div class="section-label t" data-en="RED FLAGS DETECTED" data-ar="المؤشرات المكتشفة">RED FLAGS DETECTED</div>
+        <div class="flags-list" id="flagsList"></div>
+      </div>
+      <div class="result-section">
+        <div class="section-label t" data-en="RISK SCORES" data-ar="درجات المخاطر">RISK SCORES</div>
+        <div class="score-bars" id="scoreBars"></div>
+      </div>
+      <div class="result-section">
+        <div class="section-label t" data-en="RECOMMENDATION" data-ar="التوصية">RECOMMENDATION</div>
+        <div class="recommendation" id="recommendationBlock"></div>
+      </div>
+      <div class="result-section" style="text-align:center;padding-top:4px;">
+        <button class="report-btn" id="reportBtn">
+          🚩 <span class="t" data-en="Report this content to authorities" data-ar="أبلغ عن هذا المحتوى للسلطات">Report this content to authorities</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Safety Directive Cards -->
+  <div class="tips-row">
+
+    <!-- Check Sources -->
+    <div class="tip-card">
+      <div class="tip-icon-wrap green">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="9" cy="9" r="6" stroke="#00C3A5" stroke-width="1.6"/>
+          <path d="M13.5 13.5L17 17" stroke="#00C3A5" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M7 9l1.5 1.5L12 7" stroke="#00C3A5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="tip-title t" data-en="CHECK SOURCES" data-ar="تحقق من المصادر">CHECK SOURCES</div>
+      <div class="tip-desc t" data-en="Always verify from official UAE government channels and accredited news outlets before believing or sharing content." data-ar="تحقق دائماً من القنوات الحكومية الإماراتية الرسمية والمنافذ الإخبارية المعتمدة قبل تصديق أي محتوى أو مشاركته.">Always verify from official UAE government channels and accredited news outlets before believing or sharing content.</div>
+    </div>
+
+    <!-- Pause Before Sharing -->
+    <div class="tip-card">
+      <div class="tip-icon-wrap orange">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="7.5" stroke="#F5A623" stroke-width="1.6"/>
+          <path d="M10 6v4.5l2.5 2.5" stroke="#F5A623" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7.5 4.5C8.25 4.18 9.1 4 10 4" stroke="#F5A623" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="tip-title t" data-en="PAUSE BEFORE SHARING" data-ar="توقف قبل المشاركة">PAUSE BEFORE SHARING</div>
+      <div class="tip-desc t" data-en="Emotional or urgent content is often designed to make you act before thinking. Take a moment — misinformation spreads fastest in panic." data-ar="المحتوى العاطفي أو العاجل غالباً ما يُصمَّم لدفعك للتصرف قبل التفكير. خذ لحظة — المعلومات المضللة تنتشر بأسرع ما يكون وقت الذعر.">Emotional or urgent content is often designed to make you act before thinking. Take a moment — misinformation spreads fastest in panic.</div>
+    </div>
+
+    <!-- Report Suspicious -->
+    <div class="tip-card">
+      <div class="tip-icon-wrap blue">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4h8l-1.5 4L12 12H4V4z" stroke="#0076FF" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M4 4V17" stroke="#0076FF" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="15" cy="5" r="2" fill="#0076FF" opacity="0.25" stroke="#0076FF" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div class="tip-title t" data-en="REPORT SUSPICIOUS" data-ar="أبلغ عن المشبوه">REPORT SUSPICIOUS</div>
+      <div class="tip-desc t" data-en="Contact UAE authorities via the eCrime portal if you encounter dangerous misinformation. Reporting protects your community." data-ar="تواصل مع السلطات الإماراتية عبر بوابة الجرائم الإلكترونية إذا واجهت معلومات مضللة خطيرة. الإبلاغ يحمي مجتمعك.">Contact UAE authorities via the eCrime portal if you encounter dangerous misinformation. Reporting protects your community.</div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>
+  <span>VerifyAE</span> · For public awareness only · Not an official government service
+</footer>
+<script src="main.js" defer></script>
+</body>
+</html>
