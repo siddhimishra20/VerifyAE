@@ -1,7 +1,13 @@
-# 🛡️ VerifyAE — Anti-Misinformation Tool
+# 🛡️ VerifyAE - Anti-Misinformation Tool
 
 > AI-powered crisis misinformation detection for the UAE general public.
 > Bilingual (English + Arabic)
+
+VerifyAE is an AI-powered misinformation detection platform built in response to the rising spread of unverified information during ongoing regional tensions involving Iran, Israel, the United States, and reported security incidents affecting Gulf countries, including the UAE. In times of conflict, social media and messaging platforms often amplify rumors, false claims, and emotionally charged content that can create unnecessary panic. VerifyAE was developed to help users avoid blindly trusting everything they see online.
+
+The platform allows users to submit news snippets, forwarded messages, or social media claims. It then analyzes the content, extracts key entities, and cross-checks the information against trusted UAE government sources and official channels. Based on this verification process, VerifyAE generates a credibility assessment, flags potential red signals, and provides a clear explanation of its findings.
+
+The goal of VerifyAE is to promote calm, informed decision-making and support responsible information sharing during sensitive and uncertain times.
 
 ---
 
@@ -9,15 +15,15 @@
 
 ```
 verifyae/
-├── backend/              ← Node.js + Express API server
-│   ├── server.js         ← Main server (all API routes)
+├── backend/              
+│   ├── server.js       
 │   ├── package.json
-│   ├── .env.example      ← Copy to .env and fill in your keys
+│   ├── .env.example     
 │   └── data/
-│       └── reports.json  ← Auto-created when users submit reports
+│       └── reports.json  
 │
 └── frontend/
-    └── uae-verify.html   ← Single-file frontend (drop into backend/public/)
+    └── uae-verify.html 
 ```
 
 ---
@@ -56,7 +62,7 @@ cp .env.example .env
 
 Edit `.env`:
 ```
-ANTHROPIC_API_KEY=sk-ant-your-key-here
+GROQ_API_KEY=enter-your-key-here
 PORT=3001
 ALLOWED_ORIGIN=*
 ADMIN_KEY=your-secure-random-string
@@ -168,74 +174,6 @@ Get report statistics.
 
 ---
 
-## Production Deployment
-
-### Option A: Railway (Easiest)
-
-1. Push code to GitHub
-2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-3. Add environment variables in Railway dashboard
-4. Railway auto-detects Node.js and deploys
-
-### Option B: VPS (DigitalOcean / AWS EC2)
-
-```bash
-# On your server
-git clone <your-repo>
-cd verifyae/backend
-npm install --production
-
-# Install PM2 for process management
-npm install -g pm2
-pm2 start server.js --name verifyae
-pm2 startup   # auto-restart on reboot
-pm2 save
-
-# Set up Nginx reverse proxy
-# Point your domain to localhost:3001
-```
-
-**Sample Nginx config:**
-```nginx
-server {
-    listen 80;
-    server_name verifyae.ae www.verifyae.ae;
-
-    location / {
-        proxy_pass http://localhost:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-Then add SSL with Certbot:
-```bash
-sudo certbot --nginx -d verifyae.ae
-```
-
-### After deployment — update the frontend
-
-In `uae-verify.html`, change:
-```js
-const API_BASE = 'http://localhost:3001/api';
-```
-to:
-```js
-const API_BASE = 'https://your-backend-domain.com/api';
-```
-
-And update CORS in `.env`:
-```
-ALLOWED_ORIGIN=https://verifyae.ae
-```
-
----
-
 ## Roadmap / Next Steps
 
 - [ ] Admin dashboard (view all reports, trends)
@@ -243,8 +181,8 @@ ALLOWED_ORIGIN=https://verifyae.ae
 - [ ] Push to eCrime portal API (official UAE reporting)
 - [ ] Mobile app (React Native)
 - [ ] Telegram/WhatsApp bot integration
-- [ ] Real-time news monitoring feed
-- [ ] Multi-language (Urdu, Hindi, Tagalog — common in UAE)
+- [ ] Real-time news monitoring feed, adding an interactive globe map
+- [ ] Multi-language (Urdu, Hindi, Tagalog - common in UAE)
 
 ---
 
@@ -252,5 +190,5 @@ ALLOWED_ORIGIN=https://verifyae.ae
 
 - This tool is for **public awareness only** and is **not an official government service**
 - Analysis is AI-generated and should not be treated as legal determination
-- Content is not stored — only anonymized report metadata is saved
+- Content is not stored, only anonymized report metadata is saved
 - Complies with UAE cybercrime laws regarding data handling
