@@ -9,6 +9,9 @@ The platform allows users to submit news snippets, forwarded messages, or social
 
 The goal of VerifyAE is to promote calm, informed decision-making and support responsible information sharing during sensitive and uncertain times.
 
+<img width="1496" height="827" alt="image" src="https://github.com/user-attachments/assets/717444a3-34f9-4ce0-bcf4-50f12f99e83f" />
+
+
 ---
 
 ## Project Structure
