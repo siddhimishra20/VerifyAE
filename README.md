@@ -1,7 +1,7 @@
 # 🛡️ VerifyAE — Anti-Misinformation Tool
 
 > AI-powered crisis misinformation detection for the UAE general public.
-> Bilingual (English + Arabic) · Powered by Claude AI
+> Bilingual (English + Arabic)
 
 ---
 
