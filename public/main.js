@@ -3,7 +3,7 @@
  * All event listeners attached after DOMContentLoaded
  */
 
-const API_BASE = 'http://localhost:3001/api'; // Change to your deployed URL in production
+const API_BASE = 'https://verifyae.onrender.com/api'; 
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let currentTab  = 'text';
