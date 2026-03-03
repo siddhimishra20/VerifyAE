@@ -11,7 +11,6 @@ The goal of VerifyAE is to promote calm, informed decision-making and support re
 
 <img width="1496" height="827" alt="image" src="https://github.com/user-attachments/assets/717444a3-34f9-4ce0-bcf4-50f12f99e83f" />
 
-
 ---
 
 ## Project Structure
@@ -195,3 +194,18 @@ Get report statistics.
 - Analysis is AI-generated and should not be treated as legal determination
 - Content is not stored, only anonymized report metadata is saved
 - Complies with UAE cybercrime laws regarding data handling
+
+---
+
+A few instances:
+
+1.) Spreading misinformation through false claims:
+
+<img width="639" height="817" alt="image" src="https://github.com/user-attachments/assets/cbeb2c21-0187-4f4b-8fd5-bfd88ff15903" />
+
+
+2.) Checking the official UAE Gov website:
+
+<img width="639" height="729" alt="image" src="https://github.com/user-attachments/assets/389a2650-ac81-40e0-a692-83498c39dc76" />
+
+
