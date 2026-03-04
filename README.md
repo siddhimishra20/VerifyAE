@@ -32,17 +32,18 @@ verifyae/
 
 ## Features
 
-| Feature | Description |
-|---|---|
-| **Text analysis** | Paste any text — social media posts, news excerpts, WhatsApp messages |
-| **URL scraping** | Paste a news article URL — backend fetches and analyzes it |
-| **AI verdict** | SAFE / WARN / DANGER with confidence score |
-| **Risk scores** | Fear Amplification, Unverified Claims, Source Credibility, Emotional Manipulation |
-| **Red flags** | Specific issues detected with emoji indicators |
-| **Report system** | Users can flag content — saved to reports.json |
-| **Bilingual** | Full Arabic + English UI and AI responses |
-| **Rate limiting** | 60 requests/hour per IP, 5 analysis requests/minute per IP |
-| **Security** | Helmet headers, CORS restriction, no API key exposed to client |
+| Feature            | Description |
+|-------------------|-------------|
+| **Text Analysis**  | Paste any text, social media posts, news excerpts, WhatsApp messages. |
+| **URL Scraping**   | Paste a news article URL, backend fetches content, parses through the web, and analyzes it. |
+| **Executive Summary** | Groq provides a concise summary after referencing important sources like government websites and credited news channels. |
+| **AI Verdict**     | Classifies content as SAFE / WARN / DANGER with a confidence score. |
+| **Risk Scores**    | Provides scores for Fear Amplification, Unverified Claims, Source Credibility, and Emotional Manipulation. |
+| **Red Flags**      | Highlights specific issues detected with emoji indicators for easy recognition. |
+| **Report System**  | Users can flag content, reports are saved to `reports.json`. |
+| **Bilingual**      | Full Arabic + English UI and AI responses. |
+| **Rate Limiting**  | 60 requests/hour per IP, 5 analysis requests/minute per IP. |
+| **Security**       | Helmet headers and CORS restrictions |
 
 ---
 
