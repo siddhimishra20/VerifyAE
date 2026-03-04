@@ -179,12 +179,13 @@ Get report statistics.
 ## Roadmap / Next Steps
 
 - [ ] Admin dashboard (view all reports, trends)
-- [ ] User accounts + history
+- [ ] Real-time news monitoring feed, adding an interactive globe map
+- [ ] Multimodal AI Pipelines
+- [ ] Graph database (Neo4j) and GNNs 
 - [ ] Push to eCrime portal API (official UAE reporting)
 - [ ] Mobile app (React Native)
 - [ ] Telegram/WhatsApp bot integration
-- [ ] Real-time news monitoring feed, adding an interactive globe map
-- [ ] Multi-language (Urdu, Hindi, Tagalog - common in UAE)
+- [ ] Multi-language (Urdu, Hindi, Tagalog, which are common in UAE)
 
 ---
 
@@ -207,5 +208,7 @@ A few instances:
 2.) Checking the official UAE Gov website:
 
 <img width="639" height="729" alt="image" src="https://github.com/user-attachments/assets/389a2650-ac81-40e0-a692-83498c39dc76" />
+
+
 
 
