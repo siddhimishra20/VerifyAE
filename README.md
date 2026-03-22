@@ -187,6 +187,7 @@ Get report statistics.
 - [ ] Mobile app (React Native)
 - [ ] Telegram/WhatsApp bot integration
 - [ ] Multi-language (Urdu, Hindi, Tagalog, which are common in UAE)
+- [ ] GNN + Mamba
 
 ---
 
