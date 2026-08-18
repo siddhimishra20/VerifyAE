@@ -255,24 +255,21 @@ function renderResult(r) {
   if (r.domainVerdict) {
     const dv        = r.domainVerdict;
     const isAr      = currentLang === 'ar';
-    const colorMap  = { green: '#00C3A5', blue: '#0076FF', orange: '#F5A623', red: '#FF4646' };
-    const bgMap     = { green: 'rgba(0,195,165,0.08)', blue: 'rgba(0,118,255,0.08)', orange: 'rgba(245,166,35,0.08)', red: 'rgba(255,70,70,0.08)' };
-    const borderMap = { green: 'rgba(0,195,165,0.25)', blue: 'rgba(0,118,255,0.25)', orange: 'rgba(245,166,35,0.25)', red: 'rgba(255,70,70,0.25)' };
     const c         = dv.color || 'orange';
     const badgeIcon = dv.trusted ? '✓' : (dv.tier === 'UNVERIFIED_AE' ? '~' : '✕');
     const name      = isAr ? (dv.sourceNameAr || dv.sourceName) : dv.sourceName;
     const badgeLbl  = isAr ? dv.labelAr : dv.labelEn;
 
     domainBadgeWrap.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;">
-        <div style="display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:8px;background:${bgMap[c]};border:1px solid ${borderMap[c]};font-size:12px;">
-          <span style="color:${colorMap[c]};font-weight:700;font-size:13px;">${badgeIcon}</span>
-          <span style="color:${colorMap[c]};font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;">${badgeLbl}</span>
-          <span style="color:#6B8399;font-size:11px;">·</span>
-          <span style="color:#E8F0F8;font-size:11px;">${name}</span>
+      <div class="source-badge-wrap">
+        <div class="source-badge ${c}">
+          <span class="source-badge-icon">${badgeIcon}</span>
+          <span class="source-badge-label">${badgeLbl}</span>
+          <span class="source-badge-dot">·</span>
+          <span class="source-badge-name">${name}</span>
         </div>
         ${r.lookalike
-          ? `<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:rgba(255,70,70,0.1);border:1px solid rgba(255,70,70,0.3);font-size:11px;color:#FF4646;font-weight:600;">
+          ? `<div class="lookalike-badge">
                ⚠ ${isAr ? 'تحذير: نطاق مشبوه' : 'Lookalike Domain Detected'}
              </div>`
           : ''}
