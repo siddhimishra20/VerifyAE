@@ -440,6 +440,84 @@
     color: var(--text);
   }
 
+  /* Domain / Source Badges */
+  .source-badge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 13px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-size: 12px;
+  }
+  .source-badge.green {
+    background: rgba(0, 195, 165, 0.08);
+    border-color: rgba(0, 195, 165, 0.25);
+  }
+  .source-badge.blue {
+    background: rgba(0, 118, 255, 0.08);
+    border-color: rgba(0, 118, 255, 0.25);
+  }
+  .source-badge.orange {
+    background: rgba(245, 166, 35, 0.08);
+    border-color: rgba(245, 166, 35, 0.25);
+  }
+  .source-badge.red {
+    background: rgba(255, 70, 70, 0.08);
+    border-color: rgba(255, 70, 70, 0.25);
+  }
+
+  .source-badge-icon {
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .source-badge.green .source-badge-icon { color: var(--accent); }
+  .source-badge.blue .source-badge-icon { color: var(--accent2); }
+  .source-badge.orange .source-badge-icon { color: var(--warn); }
+  .source-badge.red .source-badge-icon { color: var(--danger); }
+
+  .source-badge-label {
+    font-weight: 700;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  .source-badge.green .source-badge-label { color: var(--accent); }
+  .source-badge.blue .source-badge-label { color: var(--accent2); }
+  .source-badge.orange .source-badge-label { color: var(--warn); }
+  .source-badge.red .source-badge-label { color: var(--danger); }
+
+  .source-badge-dot {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .source-badge-name {
+    color: var(--text);
+    font-size: 11px;
+  }
+
+  .lookalike-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(255, 70, 70, 0.1);
+    border: 1px solid rgba(255, 70, 70, 0.3);
+    font-size: 11px;
+    color: var(--danger);
+    font-weight: 600;
+  }
+
   .flags-list {
     display: flex;
     flex-direction: column;
